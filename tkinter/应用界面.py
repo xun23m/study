@@ -1,7 +1,8 @@
+from tkinter import Tk, Label, filedialog, Scale, HORIZONTAL, Entry, Menu
 import cv2
 import numpy as np
-from tkinter import Tk, Label, Button, filedialog, Scale, HORIZONTAL, Entry, Menu
 from PIL import Image, ImageTk
+
 
 class ImageProcessor:
     def __init__(self, master):
@@ -13,8 +14,6 @@ class ImageProcessor:
         self.master.title("图像处理实验")
 
         self.master.geometry("1280x800")
-
-        # self.master.bind("<Configure>", self.on_resize)
 
         self.menu_bar = Menu(self.master)
         self.master.config(menu=self.menu_bar)
@@ -32,7 +31,6 @@ class ImageProcessor:
         self.process_menu.add_command(label="圆检测", command=lambda: self.circle_detection())
         self.menu_bar.add_cascade(label="图像处理", menu=self.process_menu)
 
-
         # UI Elements
         self.label = Label(master, text="选择图像进行处理")
         self.label.place(x=10, y=10)
@@ -44,33 +42,33 @@ class ImageProcessor:
         self.canvas_origon.place(x=10, y=40)
 
         # 边缘检测参数
-        self.edge_low_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,  command=self.on_threshold_change,
+        self.edge_low_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL, command=self.on_threshold_change,
                                     length=100, label="低阈值")
         self.edge_low_scale.set(150)
         self.edge_high_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL, command=self.on_threshold_change,
-                                    length=100,label= "高阈值")
+                                     length=100, label="高阈值")
         self.edge_high_scale.set(150)
 
         # 直线检测参数
         self.line_minLineLength_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,
-                                              command=self.on_threshold_change,label= "最小线段长度")
+                                              command=self.on_threshold_change, label="最小线段长度")
         self.line_maxLineGap_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,
-                                              command=self.on_threshold_change, label= "最大线段间隔")
+                                           command=self.on_threshold_change, label="最大线段间隔")
         self.line_threshold_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,
-                                              command=self.on_threshold_change, label= "阈值")
+                                          command=self.on_threshold_change, label="阈值")
         self.rho_entry = Entry(master, width=5)
         self.rho_entry.insert(0, "1")
-        #圆检测参数
+        # 圆检测参数
         self.circle_minDist_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,
-                                              command=self.on_threshold_change, label= "最小圆心距")
+                                          command=self.on_threshold_change, label="最小圆心距")
         self.circle_minDist_scale.set(5)
         self.circle_param2_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,
-                                              command=self.on_threshold_change, label= "积累器阈值")
+                                         command=self.on_threshold_change, label="积累器阈值")
         self.circle_param2_scale.set(50)
         self.circle_minRadius_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,
-                                              command=self.on_threshold_change, label= "最小半径")
+                                            command=self.on_threshold_change, label="最小半径")
         self.circle_maxRadius_scale = Scale(master, from_=1, to=300, orient=HORIZONTAL,
-                                              command=self.on_threshold_change, label= "最大半径")
+                                            command=self.on_threshold_change, label="最大半径")
         self.circle_maxRadius_scale.set(300)
 
     def hide_all_widgets(self):
@@ -88,6 +86,7 @@ class ImageProcessor:
 
     def select_operation(self, operation):
         self.type_way = operation
+
     def on_threshold_change(self, value):
         if self.type_way == "edge_detection":
             self.edge_detection()
@@ -97,6 +96,7 @@ class ImageProcessor:
             self.circle_detection()
         else:
             print("未选择")
+
     def open_image(self):
         file_path = filedialog.askopenfilename()
         if file_path:
@@ -104,9 +104,9 @@ class ImageProcessor:
 
             x, y = self.image.shape[:2]
             while x > 640 or y > 480:
-                self.image = cv2.resize(self.image, (x//2, y//2))
+                self.image = cv2.resize(self.image, (x // 2, y // 2))
                 x, y = self.image.shape[:2]
-            self.canvas.place(x=x+50, y=40)
+            self.canvas.place(x=x + 50, y=40)
             self.display_origon_image(self.image)
 
     def display_origon_image(self, img):
@@ -122,6 +122,7 @@ class ImageProcessor:
         img = ImageTk.PhotoImage(img)
         self.canvas.configure(image=img)
         self.canvas.image = img
+
     def edge_detection(self):
         if self.image is None:
             return
@@ -164,7 +165,8 @@ class ImageProcessor:
         minLineLength = self.line_minLineLength_scale.get()
         maxLineGap = self.line_maxLineGap_scale.get()
         edges = cv2.Canny(gray, low_threshold, high_threshold)
-        lines = cv2.HoughLinesP(edges, rho, np.pi / 180, threshold=line_threshold, minLineLength=minLineLength, maxLineGap=maxLineGap)
+        lines = cv2.HoughLinesP(edges, rho, np.pi / 180, threshold=line_threshold, minLineLength=minLineLength,
+                                maxLineGap=maxLineGap)
         line_img = self.image.copy()
 
         if lines is not None:
@@ -209,8 +211,8 @@ class ImageProcessor:
 
         self.display_image(circle_img)
 
+
 if __name__ == "__main__":
     root = Tk()
     app = ImageProcessor(root)
     root.mainloop()
-
